@@ -12,7 +12,7 @@ public class GenerareSectiuniDrum : MonoBehaviour
     {
         if(other.gameObject.CompareTag("Trigger"))
         {
-            Instantiate(roadSection, new Vector3(0, 0, -36), Quaternion.identity);
+            Instantiate(roadSection, new Vector3(0, 0, -80), Quaternion.identity);
 
         }
 

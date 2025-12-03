@@ -12,21 +12,38 @@ public class PlayerController : MonoBehaviour
 
     private int targetLane = 0;      // -1, 0, +1
 
+
+
+    private Animator anim;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody>(); // Access player's Rigidbody.
+        anim = GetComponent<Animator>();//se acceseaza componenta animator
     }
+
+
+
+
+
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown("Jump")&&isTouching==true ) // Only jump if grounded
+
+
+    
+
+
+        //Aplicare forta veriticala+animatie la apasare SPACE
+        if (Input.GetButtonDown("Jump")&&isTouching==true ) 
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+
             
         }
 
-
+       
 
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
@@ -57,17 +74,19 @@ void ChangeLane(int direction)
 void OnCollisionEnter(Collision collision)
     {
         isTouching = true;
+        anim.SetBool("IsJumping", false);
     }
 
     void OnCollisionStay(Collision collision)
     {
         isTouching = true;
+        anim.SetBool("IsJumping", false);
     }
 
     void OnCollisionExit(Collision collision)
     {
         isTouching = false;
+        anim.SetBool("IsJumping", true);
     }
 }
 
-//COD BUN
