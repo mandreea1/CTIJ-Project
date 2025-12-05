@@ -2,24 +2,15 @@ using UnityEngine;
 
 public class PlatformMovement : MonoBehaviour
 {
-    
-
-    
+    public static float vitezaGlobala = 15f;
 
     void Update()
     {
-        //Translatie platforma
-        transform.position += new Vector3(0, 0, 3) * Time.deltaTime;
-    }
+        transform.Translate(Vector3.back * vitezaGlobala * Time.deltaTime, Space.World);
 
-    //Distrugere instanta platforma la atingerea Box Collider din spatele Playerului
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if(other.gameObject.CompareTag("Destroy"))
+        if (transform.position.z < -100)
         {
             Destroy(gameObject);
-
         }
     }
 }

@@ -1,92 +1,91 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-
-// Controls player movement and rotation.
 public class PlayerController : MonoBehaviour
 {
-    public float jumpForce = 5.0f;
-    public bool isTouching = false;
-    private Rigidbody rb; // Reference to player's Rigidbody.
-    public float laneDistance = 3f; 
-    public float moveSpeed = 10f;   
+    [Header("Setari Miscare")]
+    public float laneDistance = 3f;
+    public float moveSpeed = 10f;
 
-    private int targetLane = 0;      // -1, 0, +1
-
-
+    [Header("Setari Saritura")]
+    public float jumpHeight = 2.0f;
+    public float gravity = -20f;
+    public int maxJumps = 2;
 
     private Animator anim;
+    private int targetLane = 0;
+    private bool isGrounded = true;
+    private float verticalVelocity = 0;
+    private int currentJumpCount = 0; 
 
-    private void Start()
+    void Start()
     {
-        rb = GetComponent<Rigidbody>(); // Access player's Rigidbody.
-        anim = GetComponent<Animator>();//se acceseaza componenta animator
+        anim = GetComponent<Animator>();
+        if (anim != null) anim.applyRootMotion = false;
     }
 
-
-
-
-
-
-    // Update is called once per frame
     void Update()
     {
-
-
-    
-
-
-        //Aplicare forta veriticala+animatie la apasare SPACE
-        if (Input.GetButtonDown("Jump")&&isTouching==true ) 
+        if (transform.position.y <= 0.25f && verticalVelocity <= 0)
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+            isGrounded = true;
+            verticalVelocity = 0;
+            currentJumpCount = 0; 
 
-            
+            Vector3 pos = transform.position;
+            pos.y = 0;
+            transform.position = pos;
+
+            if (anim != null) anim.SetBool("IsJumping", false);
+        }
+        else
+        {
+            isGrounded = false;
         }
 
-       
-
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Input.GetButtonDown("Jump"))
         {
-            ChangeLane(+1);
-        }
-        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            ChangeLane(-1);
+            if (isGrounded || currentJumpCount < maxJumps)
+            {
+                Jump();
+            }
         }
 
-        Vector3 targetPosition = new Vector3(targetLane * laneDistance, transform.position.y, transform.position.z);
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) ChangeLane(-1);
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) ChangeLane(1);
 
-        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * moveSpeed);
+        float targetX = targetLane * laneDistance;
+        float newX = Mathf.Lerp(transform.position.x, targetX, Time.deltaTime * moveSpeed);
+
+        if (!isGrounded)
+        {
+            verticalVelocity += gravity * Time.deltaTime;
+        }
+        float newY = transform.position.y + (verticalVelocity * Time.deltaTime);
+        float newZ = 0f;
+
+        transform.position = new Vector3(newX, newY, newZ);
+
+        //  rotatia 0 ca sa nu derapeze
+        transform.rotation = Quaternion.Euler(0, 0, 0);
     }
 
+    void Jump()
+    {
+        //impuls
+        verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        currentJumpCount++;
+        isGrounded = false;
 
+        if (anim != null)
+        {
+            anim.Play("HumanoidJumpUp", 0, 0f);
+            anim.SetBool("IsJumping", true);
+        }
+    }
 
-void ChangeLane(int direction)
-{
-    targetLane += direction;
-
-    // Limite: -1, 0, +1
-    targetLane = Mathf.Clamp(targetLane, -1, 1);
+    void ChangeLane(int direction)
+    {
+        targetLane += direction;
+        targetLane = Mathf.Clamp(targetLane, -1, 1);
+    }
 }
-
-
-
-void OnCollisionEnter(Collision collision)
-    {
-        isTouching = true;
-        anim.SetBool("IsJumping", false);
-    }
-
-    void OnCollisionStay(Collision collision)
-    {
-        isTouching = true;
-        anim.SetBool("IsJumping", false);
-    }
-
-    void OnCollisionExit(Collision collision)
-    {
-        isTouching = false;
-        anim.SetBool("IsJumping", true);
-    }
-}
-
