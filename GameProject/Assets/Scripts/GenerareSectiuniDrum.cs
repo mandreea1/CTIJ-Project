@@ -1,45 +1,82 @@
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections.Generic;
 
 public class GenerareSectiuniDrum : MonoBehaviour
 {
-    [Header("Configurare")]
-    public GameObject roadSection; 
-    public PatternGenerator arhitect; 
+    [Header("Setari Generare")]
+    public GameObject[] roadPrefabs;
+    public Transform player;
 
-    // Distanta la care se spawneaza urmatoarea bucata
     public float lungimeDrum = 80f;
+    public int bucatiInatiale = 4;
 
-    // reminder unde a fost ultima platforma ca sa o lipim pe urmatoarea
-    private Vector3 pozitieUrmatoare = new Vector3(0, 0, 0); // Start
+    private List<GameObject> activeRoads = new List<GameObject>();
 
     void Start()
     {
-        //Generam primele 2-3 bucati la start ca sa nu cadem in gol
-        SpawnPlatforma();
-        SpawnPlatforma();
-    }
+        if (player == null) player = transform;
 
-    private void OnTriggerEnter(Collider other)
-    {
-        // Playerul loveste triggerul invizibil de la finalul unei sectiuni
-        if (other.gameObject.CompareTag("Trigger") || other.gameObject.CompareTag("Player"))
+        // -60f = 20m safe zone 
+        // -40f = 40m safe zone 
+        // -30f = 50m safe zone
+
+        float zCurent = -40f;
+
+        for (int i = 0; i < bucatiInatiale; i++)
         {
-            SpawnPlatforma();
+            bool genereazaDecor = (i > 0);
+
+            SpawnRoad(zCurent, genereazaDecor);
+            zCurent += lungimeDrum;
         }
     }
 
-    void SpawnPlatforma()
+    void Update()
     {
-        //Cream platforma goala la pozitia calculata
-        GameObject platformaNoua = Instantiate(roadSection, pozitieUrmatoare, Quaternion.identity);
-
-        // Calculam unde va fi urmatoarea (mutam cursorul cu 80m in fata)
-        pozitieUrmatoare += new Vector3(0, 0, lungimeDrum);
-
-        //APELAM SCRIPTUL
-        if (arhitect != null)
+        if (activeRoads.Count > 0)
         {
-            arhitect.DecoreazaPlatforma(platformaNoua.transform);
+            GameObject ultimaBucata = activeRoads[activeRoads.Count - 1];
+
+            // Generare infinită
+            if (ultimaBucata.transform.position.z < (bucatiInatiale - 1) * lungimeDrum + player.position.z)
+            {
+                float zNou = ultimaBucata.transform.position.z + lungimeDrum;
+                SpawnRoad(zNou, true);
+            }
         }
+
+        if (activeRoads.Count > 0)
+        {
+            GameObject primaBucata = activeRoads[0];
+            if (primaBucata.transform.position.z < player.position.z - lungimeDrum - 20f)
+            {
+                StergeDrumVechi();
+            }
+        }
+    }
+
+    void SpawnRoad(float zPosition, bool cuDecor)
+    {
+        GameObject go;
+        if (roadPrefabs.Length > 0) go = Instantiate(roadPrefabs[0]);
+        else return;
+
+        go.transform.position = Vector3.forward * zPosition;
+        activeRoads.Add(go);
+
+        if (cuDecor)
+        {
+            PatternGenerator generator = FindFirstObjectByType<PatternGenerator>();
+            if (generator != null)
+            {
+                generator.DecoreazaPlatforma(go.transform);
+            }
+        }
+    }
+
+    void StergeDrumVechi()
+    {
+        Destroy(activeRoads[0]);
+        activeRoads.RemoveAt(0);
     }
 }
