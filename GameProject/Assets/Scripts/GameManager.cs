@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using TMPro; 
-using UnityEngine.SceneManagement; 
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -8,46 +8,95 @@ public class GameManager : MonoBehaviour
 
     [Header("Interfata")]
     public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI livesText; 
-    public GameObject gameOverPanel;  
+    public TextMeshProUGUI livesText;
+    public TextMeshProUGUI coinsText;      // nou – monede runda curenta
+    public GameObject gameOverPanel;
 
     [Header("Setari Joc")]
     public int vieti = 3;
-    public float scor = 0;
+    public float scor = 0;                 // distanta (m)
     public float vitezaInitiala = 15f;
     public float vitezaMaxima = 40f;
     public float rataCrestereViteza = 0.5f;
+    public float factorScor = 0.5f;  
+
+    [Header("Monede")]
+    public int monedeRunda = 0;            // cate monede ai luat in runda asta
+    public int monedeTotale = 0;           // monede salvate total (pentru main menu / shop)
+
+    [Header("FX UI")]
+    public UICountBounce coinsBounce;
+
 
     private bool jocTerminat = false;
 
+    const string TOTAL_COINS_KEY = "TOTAL_COINS";
+    const string HIGH_SCORE_KEY = "HIGH_SCORE";
+
     void Awake()
     {
-        instanta = this; 
+        instanta = this;
+
+        // luam monedele salvate
+        monedeTotale = PlayerPrefs.GetInt(TOTAL_COINS_KEY, 0);
     }
 
     void Start()
     {
         PlatformMovement.vitezaGlobala = vitezaInitiala;
         UpdateLivesUI();
-        if (gameOverPanel != null) gameOverPanel.SetActive(false); 
+        UpdateScoreUI();
+        UpdateCoinsUI();
+
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
     }
 
     void Update()
     {
         if (jocTerminat) return;
 
-        // 1. SCOR SI VITEZA
-        scor += PlatformMovement.vitezaGlobala * Time.deltaTime;
-
-        if (scoreText != null)
-            scoreText.text = ((int)scor).ToString() + " m";
+        // 1. SCOR SI VITEZA (distanta)
+        scor += PlatformMovement.vitezaGlobala * factorScor * Time.deltaTime;
 
         if (PlatformMovement.vitezaGlobala < vitezaMaxima)
             PlatformMovement.vitezaGlobala += rataCrestereViteza * Time.deltaTime;
+
+        UpdateScoreUI();
     }
 
-    // --- FUNCTII PENTRU VIETI ---
+    // ---------- SCORE UI ----------
+    void UpdateScoreUI()
+    {
+        if (scoreText != null)
+            scoreText.text = ((int)scor).ToString();
+    }
 
+    // ---------- MONEDES ----------
+    void UpdateCoinsUI()
+    {
+        if (coinsText != null)
+            coinsText.text = monedeRunda.ToString();
+    }
+
+    public void AdaugaMoneda(int amount)
+    {
+        if (jocTerminat) return;
+
+        monedeRunda += amount;
+        monedeTotale += amount;
+
+        UpdateCoinsUI();
+
+        PlayerPrefs.SetInt(TOTAL_COINS_KEY, monedeTotale);
+        PlayerPrefs.Save();
+        if (coinsBounce != null)
+        {
+            coinsBounce.Bump();
+        }
+    }
+
+    // ---------- VIETI ----------
     public void PierdeViata()
     {
         if (jocTerminat) return;
@@ -65,12 +114,11 @@ public class GameManager : MonoBehaviour
     {
         if (livesText != null)
         {
+            // ex: ♥ ♥ ♥ (sau "Vieti: 3" daca vrei)
             string textInimi = "";
 
             for (int i = 0; i < vieti; i++)
-            {
-                textInimi += "♥ "; 
-            }
+                textInimi += "♥ ";
 
             livesText.text = textInimi;
         }
@@ -79,9 +127,15 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         jocTerminat = true;
-        PlatformMovement.vitezaGlobala = 0; 
+        PlatformMovement.vitezaGlobala = 0;
 
-        Debug.Log("GAME OVER!");
+        // highscore simplu
+        int highScore = PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0);
+        if (scor > highScore)
+        {
+            PlayerPrefs.SetInt(HIGH_SCORE_KEY, (int)scor);
+            PlayerPrefs.Save();
+        }
 
         if (gameOverPanel != null)
             gameOverPanel.SetActive(true);
@@ -91,4 +145,5 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
 }

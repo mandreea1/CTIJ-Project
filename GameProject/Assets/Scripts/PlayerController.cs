@@ -15,16 +15,34 @@ public class PlayerController : MonoBehaviour
     private int targetLane = 0;
     private bool isGrounded = true;
     private float verticalVelocity = 0;
-    private int currentJumpCount = 0; 
+    private int currentJumpCount = 0;
 
-    void Start()
+    //void Start()
+    //{
+    //    anim = GetComponentInChildren<Animator>();
+    //    if (anim != null) anim.applyRootMotion = false;
+    //}
+
+    // NOU: Metodă publică pentru a seta Animator-ul din exterior
+    public void SetAnimator(Animator newAnim)
     {
-        anim = GetComponent<Animator>();
-        if (anim != null) anim.applyRootMotion = false;
+        anim = newAnim;
+        // Forțează pornirea animației de alergare imediat
+        if (anim != null)
+        {
+            anim.applyRootMotion = false;
+            anim.enabled = true;
+            // Folosim Play() cu Layer Index 0 (Base Layer) și timpul 0f
+            // pentru a forța rularea imediată.
+            anim.Play("HumanoidRun", 0, 0f);
+        }
     }
+
 
     void Update()
     {
+        //if (anim == null) anim = GetComponentInChildren<Animator>();
+
         if (transform.position.y <= 0.25f && verticalVelocity <= 0)
         {
             isGrounded = true;
@@ -35,7 +53,9 @@ public class PlayerController : MonoBehaviour
             pos.y = 0;
             transform.position = pos;
 
-            if (anim != null) anim.SetBool("IsJumping", false);
+            //if (anim != null) anim.SetBool("IsJumping", false);
+            if (anim != null) anim.CrossFade("HumanoidRun", 0.05f);
+
         }
         else
         {
@@ -69,19 +89,41 @@ public class PlayerController : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, 0, 0);
     }
 
+    //void Jump()
+    //{
+    //    //impuls
+    //    verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+    //    currentJumpCount++;
+    //    isGrounded = false;
+
+    //    if (anim != null)
+    //    {
+    //        anim.Play("HumanoidJumpUp", 0, 0f);
+    //        anim.SetBool("IsJumping", true);
+    //    }
+    //}
     void Jump()
     {
-        //impuls
+        // impuls vertical
         verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
         currentJumpCount++;
         isGrounded = false;
 
+        // siguranta: ia animatorul ACTIV (cel instantiat dupa swap)
+        //if (anim == null || !anim.gameObject.activeInHierarchy)
+        //    anim = GetComponentInChildren<Animator>();
+
         if (anim != null)
         {
-            anim.Play("HumanoidJumpUp", 0, 0f);
-            anim.SetBool("IsJumping", true);
+            anim.applyRootMotion = false;
+            anim.enabled = true;
+
+            // sari in animatia de jump
+            anim.CrossFade("HumanoidJumpUp", 0.05f);
         }
     }
+
+
 
     void ChangeLane(int direction)
     {
