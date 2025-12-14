@@ -11,7 +11,7 @@ public class PatternGenerator : MonoBehaviour
     public GameObject[] decorPrefabs;
 
     [Header("Setari")]
-    public float lungimeDrum = 80f;
+    public float lungimeDrum = 70f;
 
     private List<int> pachetModele = new List<int>();
     private int ultimulObstacolIndex = -1;

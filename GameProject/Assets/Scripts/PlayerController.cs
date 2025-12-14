@@ -17,51 +17,54 @@ public class PlayerController : MonoBehaviour
     private float verticalVelocity = 0;
     private int currentJumpCount = 0;
 
-    //void Start()
-    //{
-    //    anim = GetComponentInChildren<Animator>();
-    //    if (anim != null) anim.applyRootMotion = false;
-    //}
-
-    // NOU: Metodă publică pentru a seta Animator-ul din exterior
+    // Metoda pentru AvatarSwapper - Esentiala pentru a prelua animatorul corect
     public void SetAnimator(Animator newAnim)
     {
         anim = newAnim;
-        // Forțează pornirea animației de alergare imediat
         if (anim != null)
         {
             anim.applyRootMotion = false;
             anim.enabled = true;
-            // Folosim Play() cu Layer Index 0 (Base Layer) și timpul 0f
-            // pentru a forța rularea imediată.
-            anim.Play("HumanoidRun", 0, 0f);
+            // Ne asiguram ca pleaca pe FALSE (alergare)
+            anim.SetBool("IsJumping", false);
         }
     }
 
-
     void Update()
     {
-        //if (anim == null) anim = GetComponentInChildren<Animator>();
+        // --- REPARATIA PENTRU CASE SI ANIMATIE ---
 
-        if (transform.position.y <= 0.25f && verticalVelocity <= 0)
+        // 1. Folosim Raycast (Laser) ca sa detectam ORICE podea (pamant sau casa)
+        // Raza pleaca de la 0.5m in sus si verifica 0.8m in jos.
+        bool hitGround = Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 0.8f);
+
+        // Daca laserul atinge ceva SI nu suntem in urcare (velocity <= 0)
+        if (hitGround && verticalVelocity <= 0)
         {
             isGrounded = true;
             verticalVelocity = 0;
-            currentJumpCount = 0; 
+            currentJumpCount = 0;
 
+            // Aliniere fina pe podea (ca sa nu tremure pe casa)
             Vector3 pos = transform.position;
-            pos.y = 0;
+            pos.y = hit.point.y;
             transform.position = pos;
 
-            //if (anim != null) anim.SetBool("IsJumping", false);
-            if (anim != null) anim.CrossFade("HumanoidRun", 0.05f);
-
+            // --- AICI ESTE FIX-UL CERUT DE TINE ---
+            if (anim != null)
+            {
+                // Ii spunem Animatorului: "Suntem pe jos, deci IsJumping e FALSE"
+                // Asta va activa tranzitia inapoi catre HumanoidRun automat
+                anim.SetBool("IsJumping", false);
+            }
         }
         else
         {
+            // Daca nu atingem nimic, suntem in aer
             isGrounded = false;
         }
 
+        // --- INPUT SARITURA ---
         if (Input.GetButtonDown("Jump"))
         {
             if (isGrounded || currentJumpCount < maxJumps)
@@ -70,60 +73,47 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // --- MISCARE STANGA/DREAPTA ---
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) ChangeLane(-1);
         if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) ChangeLane(1);
 
         float targetX = targetLane * laneDistance;
         float newX = Mathf.Lerp(transform.position.x, targetX, Time.deltaTime * moveSpeed);
 
+        // --- APLICARE GRAVITATIE ---
         if (!isGrounded)
         {
             verticalVelocity += gravity * Time.deltaTime;
         }
+
         float newY = transform.position.y + (verticalVelocity * Time.deltaTime);
-        float newZ = 0f;
 
-        transform.position = new Vector3(newX, newY, newZ);
-
-        //  rotatia 0 ca sa nu derapeze
+        // Aplicam pozitia finala
+        transform.position = new Vector3(newX, newY, transform.position.z);
         transform.rotation = Quaternion.Euler(0, 0, 0);
     }
 
-    //void Jump()
-    //{
-    //    //impuls
-    //    verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-    //    currentJumpCount++;
-    //    isGrounded = false;
-
-    //    if (anim != null)
-    //    {
-    //        anim.Play("HumanoidJumpUp", 0, 0f);
-    //        anim.SetBool("IsJumping", true);
-    //    }
-    //}
     void Jump()
     {
-        // impuls vertical
+        // Calculam forta de saritura
         verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
         currentJumpCount++;
         isGrounded = false;
 
-        // siguranta: ia animatorul ACTIV (cel instantiat dupa swap)
-        //if (anim == null || !anim.gameObject.activeInHierarchy)
-        //    anim = GetComponentInChildren<Animator>();
-
+        // --- ACTIVARE ANIMATIE CU VARIABILA ---
         if (anim != null)
         {
             anim.applyRootMotion = false;
             anim.enabled = true;
 
-            // sari in animatia de jump
-            anim.CrossFade("HumanoidJumpUp", 0.05f);
+            // Setam variabila pe TRUE ca sa activeze tranzitia (sagetile din Animator)
+            anim.SetBool("IsJumping", true);
+
+            // OPTIONAL: Fortam si play instantaneu pentru reactie rapida
+            // (Poti comenta linia de mai jos daca vrei sa lasi doar Bool-ul sa decida)
+            anim.Play("HumanoidJumpUp", 0, 0f);
         }
     }
-
-
 
     void ChangeLane(int direction)
     {

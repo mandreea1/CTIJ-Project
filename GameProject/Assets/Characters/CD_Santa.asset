@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CD_Santa
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   id: Santa Claus
-  modelPrefab: {fileID: 100076, guid: 2baa67193142f624594cae43fbaf7cc4, type: 3}
+  modelPrefab: {fileID: 1689455102317406, guid: b1ddb286098809343b05dfcfcb099e4d, type: 3}
   price: 0
   previewLocalPosition: {x: 0, y: -2.3, z: 0}
   previewLocalEuler: {x: 0, y: 180, z: 0}
