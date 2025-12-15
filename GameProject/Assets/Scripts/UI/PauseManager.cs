@@ -6,28 +6,26 @@ public class PauseManager : MonoBehaviour
     [Header("UI")]
     public GameObject pausePanel;
 
-    bool paused = false;
-    float prevTimeScale = 1f;
-
     void Start()
     {
         if (pausePanel) pausePanel.SetActive(false);
-        paused = false;
+
+        GameState.IsPaused = false;
         Time.timeScale = 1f;
     }
 
     public void TogglePause()
     {
-        if (paused) Resume();
+        // daca e Game Over, nu mai permitem pauza
+        if (GameState.IsGameOver) return;
+
+        if (GameState.IsPaused) Resume();
         else Pause();
     }
 
     public void Pause()
     {
-        if (paused) return;
-
-        paused = true;
-        prevTimeScale = Time.timeScale;
+        GameState.IsPaused = true;
         Time.timeScale = 0f;
 
         if (pausePanel) pausePanel.SetActive(true);
@@ -35,17 +33,18 @@ public class PauseManager : MonoBehaviour
 
     public void Resume()
     {
-        if (!paused) return;
-
-        paused = false;
-        Time.timeScale = prevTimeScale <= 0f ? 1f : prevTimeScale;
+        GameState.IsPaused = false;
+        Time.timeScale = 1f;
 
         if (pausePanel) pausePanel.SetActive(false);
     }
 
     public void GoToMainMenu()
     {
+        GameState.IsPaused = false;
+        GameState.IsGameOver = false;
         Time.timeScale = 1f;
+
         SceneManager.LoadScene("MainMenu");
     }
 }

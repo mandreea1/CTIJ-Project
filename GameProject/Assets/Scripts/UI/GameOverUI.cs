@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -35,9 +36,28 @@ public class GameOverUI : MonoBehaviour
         if (finalCoinsText) finalCoinsText.text = $"Coins: {coinsRun}";
     }
 
+    //public void GoToMenu()
+    //{
+    //    Time.timeScale = 1f;
+    //    GameState.IsPaused = false;
+    //    GameState.IsGameOver = false;
+    //    SceneManager.LoadScene("MainMenu");
+    //}
+
     public void GoToMenu()
     {
+        StartCoroutine(LoadMenuAfterRelease());
+    }
+
+    IEnumerator LoadMenuAfterRelease()
+    {
+        // asteapta pana cand NU mai e apasat click
+        while (Input.GetMouseButton(0) || Input.touchCount > 0)
+            yield return null;
+
         Time.timeScale = 1f;
+        GameState.IsPaused = false;
+        GameState.IsGameOver = false;
         SceneManager.LoadScene("MainMenu");
     }
 }

@@ -10,7 +10,8 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI livesText;
     public TextMeshProUGUI coinsText;      // nou – monede runda curenta
-    public GameObject gameOverPanel;
+    public GameOverUI gameOverUI;
+    //public GameObject GameOverPanel;
 
     [Header("Setari Joc")]
     public int vieti = 3;
@@ -43,13 +44,16 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        GameState.IsPaused = false;
+        GameState.IsGameOver = false;
+        Time.timeScale = 1f;
         PlatformMovement.vitezaGlobala = vitezaInitiala;
         UpdateLivesUI();
         UpdateScoreUI();
         UpdateCoinsUI();
 
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(false);
+        //if (GameOverPanel != null)
+        //    GameOverPanel.SetActive(false);
     }
 
     void Update()
@@ -124,12 +128,35 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //public void GameOver()
+    //{
+    //    jocTerminat = true;
+    //    PlatformMovement.vitezaGlobala = 0;
+
+    //    // highscore simplu
+    //    int highScore = PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0);
+    //    if (scor > highScore)
+    //    {
+    //        PlayerPrefs.SetInt(HIGH_SCORE_KEY, (int)scor);
+    //        PlayerPrefs.Save();
+    //    }
+
+    //    if (gameOverPanel != null)
+    //        gameOverPanel.SetActive(true);
+    //}
+
     public void GameOver()
     {
         jocTerminat = true;
-        PlatformMovement.vitezaGlobala = 0;
+        GameState.IsGameOver = true;
+        GameState.IsPaused = true;
 
-        // highscore simplu
+        PlatformMovement.vitezaGlobala = 0f;
+
+        // optional: ingheata tot
+        Time.timeScale = 0f;
+
+        // highscore (cum ai deja)
         int highScore = PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0);
         if (scor > highScore)
         {
@@ -137,13 +164,15 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.Save();
         }
 
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
+        // arata panel-ul nou
+        if (gameOverUI != null)
+            gameOverUI.Show((int)scor, monedeRunda);
     }
 
-    public void RestartJoc()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
+
+    //public void RestartJoc()
+    //{
+    //    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    //}
 
 }

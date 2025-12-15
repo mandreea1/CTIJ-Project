@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterDefinition
   id: Axe Warrior
   modelPrefab: {fileID: 6121563198117294105, guid: 3b8ab6e871fce604f868a0eb40111eca, type: 3}
-  price: 1000
+  price: 10
   previewLocalPosition: {x: 0, y: -2.3, z: 0}
   previewLocalEuler: {x: 0, y: 180, z: 0}
   previewLocalScale: {x: 2.5, y: 2.2, z: 2.2}

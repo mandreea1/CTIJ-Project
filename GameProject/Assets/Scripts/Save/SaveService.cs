@@ -1,17 +1,75 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class SaveService
 {
-    // Daca in proiectul tau coins se salveaza cu alt key, schimba aici.
-    const string TOTAL_COINS = "TOTAL_COINS";
-    const string SELECTED_CHARACTER = "SELECTED_CHARACTER";
+    // ===== DATE PE SESIUNE (RAM) =====
+    static int coins = 0;
+    static int highScore = 0;
 
-    public static int GetCoins() => PlayerPrefs.GetInt(TOTAL_COINS, 0);
-    public static void SetCoins(int v) { PlayerPrefs.SetInt(TOTAL_COINS, v); PlayerPrefs.Save(); }
+    static string selected = "Santa Claus";
+    static HashSet<string> owned = new HashSet<string>();
 
-    public static bool IsOwned(string id) => PlayerPrefs.GetInt($"OWNED_{id}", 0) == 1;
-    public static void SetOwned(string id, bool owned) { PlayerPrefs.SetInt($"OWNED_{id}", owned ? 1 : 0); PlayerPrefs.Save(); }
+    // ===== INIT SESIUNE =====
+    static SaveService()
+    {
+        ResetSession();
+    }
 
-    public static string GetSelected(string fallback) => PlayerPrefs.GetString(SELECTED_CHARACTER, fallback);
-    public static void SetSelected(string id) { PlayerPrefs.SetString(SELECTED_CHARACTER, id); PlayerPrefs.Save(); }
+    public static void ResetSession()
+    {
+        coins = 0;
+        highScore = 0;
+        selected = "Santa Claus";
+
+        owned.Clear();
+        owned.Add("Santa Claus"); // Santa Claus Claus FREE mereu
+    }
+
+    // ===== COINS =====
+    public static int GetCoins()
+    {
+        return coins;
+    }
+
+    public static void SetCoins(int value)
+    {
+        coins = Mathf.Max(0, value);
+    }
+
+    // ===== HIGHSCORE =====
+    public static int GetHighScore()
+    {
+        return highScore;
+    }
+
+    public static void SetHighScore(int value)
+    {
+        highScore = Mathf.Max(highScore, value);
+    }
+
+    // ===== OWNED CHARACTERS =====
+    public static bool IsOwned(string id)
+    {
+        return owned.Contains(id);
+    }
+
+    public static void SetOwned(string id, bool value)
+    {
+        if (id == "Santa Claus") return; // nu se dez-cumpara
+
+        if (value) owned.Add(id);
+        else owned.Remove(id);
+    }
+
+    // ===== SELECTED CHARACTER =====
+    public static string GetSelected(string fallback)
+    {
+        return string.IsNullOrEmpty(selected) ? fallback : selected;
+    }
+
+    public static void SetSelected(string id)
+    {
+        selected = id;
+    }
 }

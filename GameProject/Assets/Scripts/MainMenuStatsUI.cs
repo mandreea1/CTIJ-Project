@@ -10,6 +10,12 @@ public class MainMenuStatsUI : MonoBehaviour
     public TMP_Text totalCoinsText;
     public TMP_Text highScoreText;
 
+    void Awake()
+    {
+        SaveService.ResetSession();
+    }
+
+
     void OnEnable()
     {
         Refresh();
@@ -24,6 +30,6 @@ public class MainMenuStatsUI : MonoBehaviour
             totalCoinsText.text = totalCoins.ToString();
 
         if (highScoreText != null)
-            highScoreText.text = $"Best: {highScore}";
+            highScoreText.text = $"{highScore}";
     }
 }
