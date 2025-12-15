@@ -38,7 +38,6 @@ public class GameManager : MonoBehaviour
     {
         instanta = this;
 
-        // luam monedele salvate
         monedeTotale = PlayerPrefs.GetInt(TOTAL_COINS_KEY, 0);
     }
 
@@ -118,7 +117,6 @@ public class GameManager : MonoBehaviour
     {
         if (livesText != null)
         {
-            // ex: ♥ ♥ ♥ (sau "Vieti: 3" daca vrei)
             string textInimi = "";
 
             for (int i = 0; i < vieti; i++)
@@ -153,10 +151,8 @@ public class GameManager : MonoBehaviour
 
         PlatformMovement.vitezaGlobala = 0f;
 
-        // optional: ingheata tot
         Time.timeScale = 0f;
 
-        // highscore (cum ai deja)
         int highScore = PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0);
         if (scor > highScore)
         {
