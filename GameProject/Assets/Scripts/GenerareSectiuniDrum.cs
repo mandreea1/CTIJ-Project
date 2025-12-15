@@ -8,24 +8,20 @@ public class GenerareSectiuniDrum : MonoBehaviour
     public Transform player;
 
     public float lungimeDrum = 80f;
-    public int bucatiInatiale = 4;
+    public int bucatiInitiale = 4;
 
     private List<GameObject> activeRoads = new List<GameObject>();
 
     void Start()
     {
-        if (player == null) player = transform;
-
-        // -60f = 20m safe zone 
-        // -40f = 40m safe zone 
-        // -30f = 50m safe zone
+        if (player == null)
+            player = transform;
 
         float zCurent = -40f;
 
-        for (int i = 0; i < bucatiInatiale; i++)
+        for (int i = 0; i < bucatiInitiale; i++)
         {
             bool genereazaDecor = (i > 0);
-
             SpawnRoad(zCurent, genereazaDecor);
             zCurent += lungimeDrum;
         }
@@ -33,35 +29,39 @@ public class GenerareSectiuniDrum : MonoBehaviour
 
     void Update()
     {
-        if (activeRoads.Count > 0)
-        {
-            GameObject ultimaBucata = activeRoads[activeRoads.Count - 1];
+        if (activeRoads.Count == 0)
+            return;
 
-            // Generare infinită
-            if (ultimaBucata.transform.position.z < (bucatiInatiale - 1) * lungimeDrum + player.position.z)
-            {
-                float zNou = ultimaBucata.transform.position.z + lungimeDrum;
-                SpawnRoad(zNou, true);
-            }
+        //GENERARE DRUM NOU 
+        GameObject ultimaBucata = activeRoads[activeRoads.Count - 1];
+
+        if (ultimaBucata != null &&
+            ultimaBucata.transform.position.z <
+            (bucatiInitiale - 1) * lungimeDrum + player.position.z)
+        {
+            float zNou = ultimaBucata.transform.position.z + lungimeDrum;
+            SpawnRoad(zNou, true);
         }
 
-        if (activeRoads.Count > 0)
+        // STERGERE DRUM VECHI 
+        GameObject primaBucata = activeRoads[0];
+
+        if (primaBucata != null &&
+            primaBucata.transform.position.z <
+            player.position.z - lungimeDrum - 20f)
         {
-            GameObject primaBucata = activeRoads[0];
-            if (primaBucata.transform.position.z < player.position.z - lungimeDrum - 20f)
-            {
-                StergeDrumVechi();
-            }
+            StergeDrumVechi();
         }
     }
 
     void SpawnRoad(float zPosition, bool cuDecor)
     {
-        GameObject go;
-        if (roadPrefabs.Length > 0) go = Instantiate(roadPrefabs[0]);
-        else return;
+        if (roadPrefabs == null || roadPrefabs.Length == 0)
+            return;
 
+        GameObject go = Instantiate(roadPrefabs[0]);
         go.transform.position = Vector3.forward * zPosition;
+
         activeRoads.Add(go);
 
         if (cuDecor)
@@ -76,7 +76,13 @@ public class GenerareSectiuniDrum : MonoBehaviour
 
     void StergeDrumVechi()
     {
-        Destroy(activeRoads[0]);
+        if (activeRoads.Count == 0)
+            return;
+
+        GameObject drum = activeRoads[0];
         activeRoads.RemoveAt(0);
+
+        if (drum != null)
+            Destroy(drum);
     }
 }
