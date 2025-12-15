@@ -23,7 +23,6 @@ public class PlayerAvatarSwapper : MonoBehaviour
         if (db != null) def = db.characters.Find(c => c.id == selectedId);
         if (def == null && db != null) def = db.characters.Find(c => c.id == "Santa Claus");
 
-        // IMPORTANT: ascunde doar mesh-ul vechi, NU root-ul playerului
         if (defaultModelToHide != null)
             defaultModelToHide.SetActive(false);
 
@@ -54,7 +53,6 @@ public class PlayerAvatarSwapper : MonoBehaviour
             if (gameplayController != null)
                 anim.runtimeAnimatorController = gameplayController;
 
-            // 2. Transmite referinta Animator-ului NOU catre PlayerController
             if (playerController != null)
             {
                 playerController.SetAnimator(anim);
@@ -64,7 +62,6 @@ public class PlayerAvatarSwapper : MonoBehaviour
 
     void OnDestroy()
     {
-        // siguranta
         if (currentModel != null)
             Destroy(currentModel);
     }

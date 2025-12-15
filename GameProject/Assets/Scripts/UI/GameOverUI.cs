@@ -20,7 +20,6 @@ public class GameOverUI : MonoBehaviour
     {
         if (!showing) return;
 
-        // orice click/tap/tasta
         if (Input.anyKeyDown || Input.GetMouseButtonDown(0) || Input.touchCount > 0)
         {
             GoToMenu();
@@ -36,13 +35,6 @@ public class GameOverUI : MonoBehaviour
         if (finalCoinsText) finalCoinsText.text = $"Coins: {coinsRun}";
     }
 
-    //public void GoToMenu()
-    //{
-    //    Time.timeScale = 1f;
-    //    GameState.IsPaused = false;
-    //    GameState.IsGameOver = false;
-    //    SceneManager.LoadScene("MainMenu");
-    //}
 
     public void GoToMenu()
     {
@@ -51,7 +43,6 @@ public class GameOverUI : MonoBehaviour
 
     IEnumerator LoadMenuAfterRelease()
     {
-        // asteapta pana cand NU mai e apasat click
         while (Input.GetMouseButton(0) || Input.touchCount > 0)
             yield return null;
 

@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
     [Header("Interfata")]
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI livesText;
-    public TextMeshProUGUI coinsText;      // nou – monede runda curenta
+    public TextMeshProUGUI coinsText;     
     public GameOverUI gameOverUI;
     //public GameObject GameOverPanel;
 
@@ -22,8 +22,8 @@ public class GameManager : MonoBehaviour
     public float factorScor = 0.5f;  
 
     [Header("Monede")]
-    public int monedeRunda = 0;            // cate monede ai luat in runda asta
-    public int monedeTotale = 0;           // monede salvate total (pentru main menu / shop)
+    public int monedeRunda = 0;            
+    public int monedeTotale = 0;          
 
     [Header("FX UI")]
     public UICountBounce coinsBounce;

@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (GameState.IsPaused || GameState.IsGameOver) return; //////////adaugat pentru pauza si game over
+        if (GameState.IsPaused || GameState.IsGameOver) return; 
 
         // CALCULAM BANDA (X)
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) ChangeLane(-1);

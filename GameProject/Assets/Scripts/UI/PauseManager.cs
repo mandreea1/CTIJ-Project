@@ -16,7 +16,6 @@ public class PauseManager : MonoBehaviour
 
     public void TogglePause()
     {
-        // daca e Game Over, nu mai permitem pauza
         if (GameState.IsGameOver) return;
 
         if (GameState.IsPaused) Resume();
