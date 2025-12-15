@@ -2755,13 +2755,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   laneDistance: 3
   moveSpeed: 10
-<<<<<<< HEAD
-  jumpHeight: 2
-  gravity: -21
-=======
-  jumpHeight: 5
+  jumpHeight: 4
   gravity: -20
->>>>>>> fb3c9e31d09d5684e5d87cb82ff01114fe040ab2
   maxJumps: 3
 --- !u!114 &2108984384
 MonoBehaviour:
